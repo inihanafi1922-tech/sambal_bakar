@@ -17,25 +17,37 @@ class OrderController extends Controller
         return view('cashier.index', compact('products'));
     }
 
-    public function payments()
+    public function payments(Request $request)
     {
-        $recentOrders = Order::query()
+        $search = strtoupper(trim((string) $request->query('cari', '')));
+        $foundOrder = null;
+
+        if ($search !== '') {
+            $foundOrder = Order::query()
+                ->where('tracking_code', $search)
+                ->first()
+                ?? (ctype_digit($search) ? Order::find((int) $search) : null);
+
+            $recentOrders = $foundOrder ? collect([$foundOrder]) : collect();
+        } else {
+            $recentOrders = Order::query()
+                ->latest()
+                ->take(20)
+                ->get();
+        }
+
+        $pendingPayments = Order::query()
+            ->where('payment_status', Order::STATUS_PENDING)
             ->latest()
-            ->take(20)
             ->get();
 
-        $pendingPayments = $recentOrders
-            ->where('payment_status', Order::STATUS_PENDING)
-            ->where('payment_method', Order::PAYMENT_CASH);
-
-        return view('cashier.payments', compact('recentOrders', 'pendingPayments'));
+        return view('cashier.payments', compact('recentOrders', 'pendingPayments', 'search'));
     }
 
     public function notifications()
     {
         $pendingPayments = Order::query()
             ->where('payment_status', Order::STATUS_PENDING)
-            ->where('payment_method', Order::PAYMENT_CASH)
             ->count();
 
         $latestOrderId = Order::query()->max('id') ?? 0;
@@ -107,7 +119,7 @@ class OrderController extends Controller
 
         return redirect()
             ->route('kasir.payments')
-            ->with('status', 'Pembayaran tunai order #'.$order->id.' berhasil dikonfirmasi.');
+            ->with('status', 'Pembayaran '.$order->paymentMethodLabel().' order #'.$order->id.' berhasil dikonfirmasi.');
     }
 
     public function printReceipt(Order $order)

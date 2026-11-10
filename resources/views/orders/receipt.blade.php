@@ -41,6 +41,10 @@
 
         .total-row { display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; }
 
+        .barcode-wrap { margin-top: 12px; text-align: center; }
+        .barcode-wrap svg { max-width: 100%; }
+        .barcode-caption { font-size: 10px; letter-spacing: 2px; margin-top: 3px; font-weight: 700; }
+
         .footer { margin-top: 16px; font-size: 10px; text-align: center; line-height: 1.6; color: #555; }
 
         .status {
@@ -85,6 +89,7 @@
 
         <div class="meta">
             <div class="meta-row"><span>No. Order</span><span>#{{ $order->id }}</span></div>
+            <div class="meta-row"><span>Kode Lacak</span><span>{{ $order->tracking_code }}</span></div>
             <div class="meta-row"><span>Waktu</span><span>{{ $order->created_at->format('d/m/Y H:i') }}</span></div>
             <div class="meta-row"><span>Meja / Pelanggan</span><span>{{ $order->table_number }}</span></div>
             <div class="meta-row"><span>Pembayaran</span><span>{{ $order->paymentMethodLabel() }}</span></div>
@@ -129,6 +134,11 @@
             <span class="status">{{ $order->isPaid() ? 'lunas' : 'belum lunas' }}</span>
         </div>
 
+        <div class="barcode-wrap">
+            <svg id="receiptBarcode"></svg>
+            <div class="barcode-caption">{{ $order->tracking_code }}</div>
+        </div>
+
         <div class="divider"></div>
 
         <div class="footer">
@@ -147,5 +157,13 @@
             window.addEventListener('load', () => window.print());
         </script>
     @endif
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <script>
+        try {
+            if (window.JsBarcode) {
+                JsBarcode('#receiptBarcode', '{{ $order->tracking_code }}', { width: 1.6, height: 44, displayValue: false, margin: 0 });
+            }
+        } catch (error) {}
+    </script>
 </body>
 </html>

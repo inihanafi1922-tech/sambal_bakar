@@ -24,6 +24,7 @@ class Order extends Model
 
     protected $fillable = [
         'table_number',
+        'tracking_code',
         'items',
         'total_amount',
         'status',
@@ -32,6 +33,26 @@ class Order extends Model
         'paid_at',
         'confirmed_at',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Order $order) {
+            if (empty($order->tracking_code)) {
+                $order->tracking_code = static::generateTrackingCode();
+            }
+        });
+    }
+
+    public static function generateTrackingCode(): string
+    {
+        $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+        do {
+            $code = 'SB'.substr(str_shuffle(str_repeat($alphabet, 6)), 0, 6);
+        } while (static::query()->where('tracking_code', $code)->exists());
+
+        return $code;
+    }
 
     protected function casts(): array
     {

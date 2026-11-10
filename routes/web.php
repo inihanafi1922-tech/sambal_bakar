@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentSettingController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StaffController;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +19,16 @@ Route::get('/', function () {
 
     return redirect()->route($user->isAdmin() ? 'admin.dashboard' : 'kasir.index');
 })->name('home');
+
+// Menu publik untuk pelanggan yang memesan lewat HP (tanpa login).
+Route::get('/pesan', [CustomerOrderController::class, 'menu'])->name('pelanggan.menu');
+Route::post('/pesan', [CustomerOrderController::class, 'store'])->middleware('throttle:10,1')->name('pelanggan.order.store');
+Route::get('/pesan/{order}/status', [CustomerOrderController::class, 'status'])->middleware('signed')->name('pelanggan.order.status');
+
+// Lacak pesanan pelanggan lewat barcode / kode lacak.
+Route::get('/lacak', [CustomerOrderController::class, 'trackForm'])->name('pelanggan.track.form');
+Route::get('/lacak/{code}', [CustomerOrderController::class, 'track'])->name('pelanggan.track');
+Route::get('/api/lacak/{code}', [CustomerOrderController::class, 'trackStatus'])->name('pelanggan.track.status');
 
 // Autentikasi staf (admin & kasir).
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -53,6 +65,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/laporan', [FinanceController::class, 'index'])->name('admin.reports');
     Route::post('/admin/transaksi', [FinanceController::class, 'store'])->name('admin.transactions.store');
     Route::delete('/admin/transaksi/{transaction}', [FinanceController::class, 'destroy'])->name('admin.transactions.destroy');
+
+    // Kelola QRIS dan rekening untuk pembayaran pelanggan.
+    Route::get('/admin/pembayaran', [PaymentSettingController::class, 'index'])->name('admin.payment-settings');
+    Route::post('/admin/pembayaran', [PaymentSettingController::class, 'update'])->name('admin.payment-settings.update');
 
     Route::get('/kitchen', [OrderController::class, 'kitchen'])->name('kitchen');
     Route::get('/api/orders/active', [OrderController::class, 'getActiveOrders'])->name('orders.active');

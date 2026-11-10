@@ -328,6 +328,15 @@
         .table-actions { display: flex; gap: 6px; flex-wrap: wrap; }
         .inline-form { display: inline; margin: 0; }
 
+        .qris-preview {
+            display: inline-flex;
+            padding: 10px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #fdfaf6;
+        }
+        .qris-preview img { width: 180px; height: 180px; object-fit: contain; border-radius: 8px; display: block; }
+
         .chart-card { padding: 18px 20px 8px; }
         .chart-card h3 { margin: 0 0 4px; font-size: 16px; font-weight: 800; }
         .chart-card p { margin: 0 0 12px; font-size: 12px; color: var(--muted); }
@@ -369,6 +378,7 @@
                 @if (auth()->user()->isAdmin())
                     <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">Staf</a>
                     <a href="{{ route('admin.products.index') }}" class="{{ request()->routeIs('admin.products.*') ? 'active' : '' }}">Pengaturan Menu</a>
+                    <a href="{{ route('admin.payment-settings') }}" class="{{ request()->routeIs('admin.payment-settings*') ? 'active' : '' }}">Pembayaran</a>
                     <a href="{{ route('admin.reports') }}" class="{{ request()->routeIs('admin.reports') ? 'active' : '' }}">Laporan Keuangan</a>
                 @else
                     <a href="{{ route('kasir.staff') }}" class="{{ request()->routeIs('kasir.staff*') ? 'active' : '' }}">Staf</a>
