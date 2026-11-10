@@ -45,6 +45,27 @@ class AuthController extends Controller
         return redirect()->route('login');
     }
 
+    public function showPasswordForm()
+    {
+        return view('auth.password');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user = $request->user();
+        $user->password = $validated['password'];
+        $user->save();
+
+        $request->session()->regenerate();
+
+        return back()->with('status', 'Password berhasil diperbarui.');
+    }
+
     private function redirectPathFor(User $user): string
     {
         return match ($user->role) {

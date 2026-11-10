@@ -385,6 +385,7 @@
                     <a href="{{ route('kasir.index') }}" class="{{ request()->routeIs('kasir.index') ? 'active' : '' }}">Kasir</a>
                     <a href="{{ route('kasir.payments') }}" class="{{ request()->routeIs('kasir.payments') ? 'active' : '' }}">Pembayaran <span class="notif-badge" id="paymentBadge" hidden></span></a>
                 @endif
+                <a href="{{ route('password.edit') }}" class="{{ request()->routeIs('password.*') ? 'active' : '' }}">Password</a>
             </nav>
 
             <div class="user-box">

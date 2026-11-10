@@ -35,6 +35,12 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
+// Ganti password akun yang sedang login (admin & kasir).
+Route::middleware('auth')->group(function () {
+    Route::get('/password', [AuthController::class, 'showPasswordForm'])->name('password.edit');
+    Route::put('/password', [AuthController::class, 'updatePassword'])->name('password.update');
+});
+
 // Kasir: input pesanan, cetak struk, dan isi nama penjaga kasir.
 Route::middleware(['auth', 'role:kasir,admin'])->group(function () {
     Route::get('/kasir', [OrderController::class, 'cashier'])->name('kasir.index');
